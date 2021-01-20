@@ -1,0 +1,39 @@
+version: "3"
+services:
+  elasticsearch:
+    image: elasticsearch:7.1.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+  kibana:
+    image: kibana:7.1.1
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      I18N_LOCALE: zh-CN
+    depends_on:
+      - elasticsearch
+  logstash:
+    image: logstash:7.1.1
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+    depends_on:
+      - elasticsearch
+  filebeat:
+    image: store/elastic/filebeat:7.1.1
+    volumes:
+     - D:\docker\mnt\test\log\:/var/log
+     - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    user: "root"
+
